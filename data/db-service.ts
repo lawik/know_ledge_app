@@ -1,6 +1,11 @@
 import SQLite from 'react-native-sqlite-storage';
 import { electrify } from 'electric-sql/react-native'
-import { schema, Accounts } from '../src/generated/client/index.ts'
+import { makeElectricContext } from 'electric-sql/react'
+import { schema, Electric, Accounts } from '../src/generated/client'
+
+const { ElectricProvider, useElectric } = makeElectricContext<Electric>()
+
+
 
 // Enable the promise API. Note that we use the
 // `promisesEnabled` flag again below to tell the
@@ -24,11 +29,9 @@ export const connect = async (authToken: String) => {
   // name. Changing this will create/use a new local
   // database file.
   const conn = await SQLite.openDatabase('electric.db')
-  return electrify(conn, schema, promisesEnabled, config)
+  console.log("connected", conn)
+  const electric = await electrify(conn, schema, promisesEnabled, config)
+  console.log("electrified", electric)
+  return electric;
 }
-
-export const listAccounts = async (electric) => {
-  return electric.db.accounts.findMany();
-}
-
 

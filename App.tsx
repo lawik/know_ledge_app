@@ -25,8 +25,9 @@ import {
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 
-import { connect, listAccounts, Account } from "./data/db-service";
-
+import { useLiveQuery } from 'electric-sql/react'
+import { useElectric } from './data/wrapper'
+import { Account } from './data/db-service';
 
 type SectionProps = PropsWithChildren<{
   title: string;
@@ -58,24 +59,19 @@ function Section({ children, title }: SectionProps): JSX.Element {
   );
 }
 
+
+
 function App(): JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
-  const [accounts, setAccounts] = useState<Account[]>([]);
+  //const [accounts, setAccounts] = useState<Account[]>([]);
 
-  const loadDataCallback = useCallback(async () => {
-    try {
-      const initTodos = [{ id: 0, value: 'go to shop' }, { id: 1, value: 'eat at least a one healthy foods' }, { id: 2, value: 'Do some exercises' }];
-      const db = await connect("foo");
-      const accounts = await listAccounts(db);
-      console.log("accounts", accounts);
-      setAccounts(accounts);
-    } catch (error) {
-      console.error(error);
-    }
-  }, []);
-  useEffect(() => {
-    loadDataCallback();
-  }, [loadDataCallback]);
+  const out = useElectric()!
+  console.log("out", out)
+  const { db } = out;
+  console.log("db:", db)
+  const { results } = useLiveQuery(db.accounts.liveMany());
+
+  const accounts: Account[] = results ?? []
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
