@@ -32,16 +32,16 @@ export const ElectricWrapper = () => {
         const init = async () => {
             console.log("init!")
             const conn = await SQLite.openDatabase('electric.db')
-            console.log("connected", conn)
+            console.log("connected")
             const electric = await electrify(conn, schema, promisesEnabled, config)
-            console.log("electrified", electric)
+            console.log("electrified")
 
             if (!isMounted) {
                 console.log("early exit")
                 return
             }
 
-            console.log("setting electric", electric)
+            console.log("setting electric")
 
             setElectric(electric)
         }

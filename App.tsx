@@ -28,6 +28,8 @@ import {
 import { useLiveQuery } from 'electric-sql/react'
 import { useElectric } from './data/wrapper'
 import { Account } from './data/db-service';
+import { init, request } from './ai/llama';
+import { LlamaContext } from 'llama.rn';
 
 type SectionProps = PropsWithChildren<{
   title: string;
@@ -60,16 +62,31 @@ function Section({ children, title }: SectionProps): JSX.Element {
 }
 
 
-
 function App(): JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
   //const [accounts, setAccounts] = useState<Account[]>([]);
 
   const out = useElectric()!
-  console.log("out", out)
   const { db } = out;
-  console.log("db:", db)
   const { results } = useLiveQuery(db.accounts.liveMany());
+
+  const [llama, setLlama] = useState<LlamaContext | undefined>()
+  useEffect(() => {
+    console.log("doing init from effect...")
+    init().then((context) => {
+      setLlama(context)
+    })
+  }, [])
+
+  useEffect(() => {
+    if (llama !== undefined) {
+      console.log("making request from effect...")
+      request(llama, "Tell me how the world ends, please.").then((result) => {
+        console.log("Outcome:", result)
+      })
+    }
+  }, [llama])
+
 
   const accounts: Account[] = results ?? []
 
